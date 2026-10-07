@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+backend/.venv/
+venv/
+env/
+ENV/
+
+# Build outputs
+.next/
+dist/
+build/
+out/
+*.egg-info/
+
+# Databases & local state
+*.db
+*.sqlite
+*.sqlite3
+backend/backendflow.db
+
+# Cache & Temporary files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+.cache/
+.turbo/
+.vercel/
+*.log
+
+# Environment variables & local secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# IDE & OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
