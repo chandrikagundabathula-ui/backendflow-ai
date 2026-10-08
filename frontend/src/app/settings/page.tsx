@@ -11,7 +11,7 @@ import { api, HealthResponse } from '../../lib/api';
 
 export default function SettingsPage() {
   const [fastApiUrl, setFastApiUrl] = useState(
-    process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'
+    process.env.NEXT_PUBLIC_API_URL || 'https://backendflow-ai.onrender.com/api'
   );
   const [dbConnection, setDbConnection] = useState('sqlite:///./backendflow.db');
   const [healthStatus, setHealthStatus] = useState<HealthResponse | null>(null);

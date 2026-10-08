@@ -1,6 +1,7 @@
 import { Project, EnvironmentType, ApiEndpoint, ApiTestResult, AiApiDesign, AiGenerationRecord, ArchitectureAnalysisResult, ArchitectureAnalysisRecord, ProductionReadinessReport, ProductionReadinessHistoryItem } from '../types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backendflow-ai.onrender.com/api';
+
 
 export interface AuthTokenResponse {
   access_token: string;
