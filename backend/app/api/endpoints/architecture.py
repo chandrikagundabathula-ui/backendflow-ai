@@ -57,7 +57,7 @@ async def analyze_system_architecture(
         prompt=request_in.prompt,
         validated=validated,
         provider=provider_name,
-        model=settings.AI_MODEL or "default",
+        model=settings.NVIDIA_MODEL if provider_name == "NvidiaProvider" else (settings.AI_MODEL or "default"),
     )
 
     validated.analysis_id = saved_record.id

@@ -32,11 +32,18 @@ __pycache__/
 
 # Environment variables & local secrets
 .env
+*.env
+backend.env
+backend.env.txt
+backend/.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 .env*.local
+!.env.example
+!backend/.env.example
+!frontend/.env.example
 
 # IDE & OS files
 .DS_Store

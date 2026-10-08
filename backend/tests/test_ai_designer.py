@@ -13,7 +13,9 @@ def create_test_project(client, headers, name="AI Workspace"):
     res = client.post("/api/projects", json={"name": name, "description": "Workspace for AI design tests"}, headers=headers)
     return res.json()
 
-def test_ai_provider_factory_and_mock():
+def test_ai_provider_factory_and_mock(monkeypatch):
+    monkeypatch.setattr("app.core.config.settings.AI_PROVIDER", "mock")
+    monkeypatch.setattr("app.core.config.settings.NVIDIA_API_KEY", "")
     provider = get_ai_provider()
     assert isinstance(provider, MockAIProvider)
 

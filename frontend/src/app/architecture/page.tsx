@@ -10,6 +10,7 @@ import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Select } from '../../components/ui/Input';
+import { Interactive3DTwinCanvas } from '../../components/architecture/Interactive3DTwinCanvas';
 import {
   Cpu,
   Sparkles,
@@ -29,10 +30,8 @@ import {
   Lock,
   Layers,
   Box,
-  KeyRound,
   RefreshCw,
   Share2,
-  FileText,
   AlertTriangle,
 } from 'lucide-react';
 
@@ -74,7 +73,7 @@ export default function ArchitectureAnalyzerPage() {
   const [history, setHistory] = useState<ArchitectureAnalysisRecord[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
-  // Selected Component for Interactive Graph Inspection
+  // Selected Component for Inspection
   const [inspectedComponent, setInspectedComponent] = useState<ArchitectureComponent | null>(null);
 
   // Load Projects on Auth
@@ -153,42 +152,6 @@ export default function ArchitectureAnalyzerPage() {
     }
   };
 
-  const getComponentIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'api_gateway':
-        return <Network className="w-5 h-5 text-cyan-400" />;
-      case 'auth':
-        return <Shield className="w-5 h-5 text-purple-400" />;
-      case 'database':
-        return <Database className="w-5 h-5 text-emerald-400" />;
-      case 'cache':
-        return <Zap className="w-5 h-5 text-amber-400" />;
-      case 'message_broker':
-        return <Activity className="w-5 h-5 text-rose-400" />;
-      case 'external':
-        return <Share2 className="w-5 h-5 text-indigo-400" />;
-      default:
-        return <Server className="w-5 h-5 text-sky-400" />;
-    }
-  };
-
-  const getComponentBadgeColor = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'api_gateway':
-        return 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30';
-      case 'auth':
-        return 'bg-purple-500/10 text-purple-300 border-purple-500/30';
-      case 'database':
-        return 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30';
-      case 'cache':
-        return 'bg-amber-500/10 text-amber-300 border-amber-500/30';
-      case 'message_broker':
-        return 'bg-rose-500/10 text-rose-300 border-rose-500/30';
-      default:
-        return 'bg-slate-800 text-slate-300 border-slate-700';
-    }
-  };
-
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -199,7 +162,7 @@ export default function ArchitectureAnalyzerPage() {
               <Cpu className="w-6 h-6 text-purple-400" /> Backend Architecture Analyzer
             </h1>
             <p className="text-xs text-slate-400 mt-1">
-              AI-assisted system architecture synthesis, database selection rationale, dynamic topology diagrams, and fault-tolerance design
+              AI-assisted system architecture synthesis, database selection rationale, dynamic 3D topology diagrams, and fault-tolerance design
             </p>
           </div>
 
@@ -327,10 +290,18 @@ export default function ArchitectureAnalyzerPage() {
               )}
             </Card>
 
-            {/* Architecture Analysis Results View */}
+            {/* HERO FEATURE: INTERACTIVE 3D ARCHITECTURE VISUALIZER CANVAS */}
+            <div className="space-y-4">
+              <Interactive3DTwinCanvas
+                analysisResult={analysisResult}
+                onSelectComponent={(comp) => setInspectedComponent(comp)}
+              />
+            </div>
+
+            {/* Architecture Analysis Results Details */}
             {analysisResult && !isAnalyzing && (
               <div className="space-y-6">
-                {/* Section 1: Overview & Style */}
+                {/* Overview & Style */}
                 <Card variant="glass" className="p-6 space-y-4 border-purple-500/30 ring-1 ring-purple-500/20 shadow-2xl">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
                     <div className="flex items-center gap-2">
@@ -357,82 +328,7 @@ export default function ArchitectureAnalyzerPage() {
                   </p>
                 </Card>
 
-                {/* Section 2: DYNAMIC ARCHITECTURE VISUALIZATION DIAGRAM */}
-                <Card variant="glass" className="p-6 space-y-4 border-cyan-500/20">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-                      <Network className="w-4 h-4 text-cyan-400" /> Dynamic Architecture Topology Diagram
-                    </h3>
-                    <span className="text-[11px] text-slate-400 font-mono">
-                      Generated from {analysisResult.components.length} architectural nodes
-                    </span>
-                  </div>
-
-                  {/* Graph Topology Canvas */}
-                  <div className="p-6 bg-slate-950 border border-slate-800 rounded-xl space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                      {analysisResult.components.map((node) => {
-                        const isSelected = inspectedComponent?.id === node.id;
-                        return (
-                          <div
-                            key={node.id}
-                            onClick={() => setInspectedComponent(node)}
-                            className={`p-4 rounded-xl border transition-all cursor-pointer space-y-2 relative group ${
-                              isSelected
-                                ? 'bg-slate-900 border-cyan-400/80 shadow-lg shadow-cyan-950/40 ring-1 ring-cyan-400/30'
-                                : 'bg-slate-900/60 hover:bg-slate-900 border-slate-800 hover:border-slate-700'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="p-2 rounded-lg bg-slate-950 border border-slate-800">
-                                {getComponentIcon(node.type)}
-                              </div>
-                              <span
-                                className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold uppercase border ${getComponentBadgeColor(
-                                  node.type
-                                )}`}
-                              >
-                                {node.type.replace('_', ' ')}
-                              </span>
-                            </div>
-
-                            <div>
-                              <h4 className="text-xs font-bold text-slate-100 group-hover:text-cyan-300 transition-colors">
-                                {node.name}
-                              </h4>
-                              <p className="text-[11px] text-slate-400 font-mono mt-0.5">{node.technology}</p>
-                            </div>
-
-                            {/* Connections Indicator */}
-                            {node.connections.length > 0 && (
-                              <div className="pt-2 border-t border-slate-800/80 flex items-center gap-1 text-[10px] text-cyan-400 font-mono">
-                                <span>Connects to:</span>
-                                <span className="text-slate-300 font-bold">{node.connections.join(', ')}</span>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Inspected Node Detail Box */}
-                    {inspectedComponent && (
-                      <div className="p-4 bg-slate-900/80 border border-cyan-500/30 rounded-xl space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            {getComponentIcon(inspectedComponent.type)}
-                            <h4 className="text-sm font-bold text-slate-100">{inspectedComponent.name}</h4>
-                            <span className="text-xs text-cyan-300 font-mono">({inspectedComponent.technology})</span>
-                          </div>
-                          <span className="text-xs text-slate-400 font-mono">Node ID: {inspectedComponent.id}</span>
-                        </div>
-                        <p className="text-xs text-slate-300 leading-relaxed">{inspectedComponent.description}</p>
-                      </div>
-                    )}
-                  </div>
-                </Card>
-
-                {/* Section 3: Data Layer & Rationale ("Why PostgreSQL?") */}
+                {/* Data Layer Strategy & Rationale ("Why PostgreSQL?") */}
                 <Card variant="glass" className="p-6 space-y-4 border-emerald-500/20">
                   <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2 border-b border-slate-800 pb-3">
                     <Database className="w-4 h-4 text-emerald-400" /> Data Layer Strategy & Rationale
@@ -460,7 +356,7 @@ export default function ArchitectureAnalyzerPage() {
                   </div>
                 </Card>
 
-                {/* Section 4: Communication, Security, Scalability, Reliability */}
+                {/* Communication, Security, Scalability, Reliability */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Communication */}
                   <Card variant="glass" className="p-6 space-y-4 border-sky-500/20">
@@ -532,7 +428,7 @@ export default function ArchitectureAnalyzerPage() {
                   </Card>
                 </div>
 
-                {/* Section 5: Bottlenecks & Trade-off Rationale */}
+                {/* Bottlenecks & Trade-off Rationale */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Bottlenecks */}
                   <Card variant="glass" className="p-6 space-y-3 border-rose-900/40">
@@ -565,7 +461,7 @@ export default function ArchitectureAnalyzerPage() {
                   </Card>
                 </div>
 
-                {/* Overarching Trade-off Rationale */}
+                {/* Overarching Decision & Rationale */}
                 <Card variant="glass" className="p-6 space-y-2 border-purple-500/30 bg-purple-950/10">
                   <h4 className="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
                     <HelpCircle className="w-4 h-4 text-purple-400" /> Overarching Architecture Decision & Rationale
@@ -581,7 +477,7 @@ export default function ArchitectureAnalyzerPage() {
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
                   <History className="w-4 h-4 text-purple-400" /> Architecture Analysis History ({history.length})
                 </span>
-                <span className="text-xs text-slate-500 font-mono">Persisted in SQLite</span>
+                <span className="text-xs text-slate-500 font-mono">Persisted in Database</span>
               </div>
 
               {isLoadingHistory ? (

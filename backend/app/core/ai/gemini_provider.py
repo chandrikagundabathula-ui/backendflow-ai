@@ -8,17 +8,25 @@ class GeminiProvider(BaseAIProvider):
     """
     Google Gemini AI Provider integration using async httpx client.
     Configured via AI_API_KEY and AI_MODEL.
+    Uses x-goog-api-key header to prevent key exposure in URLs or tracebacks.
     """
     
     def __init__(self, api_key: str = "", model: str = ""):
         self.api_key = api_key or settings.AI_API_KEY
         self.model = model or settings.AI_MODEL or "gemini-2.5-flash"
 
+    def _sanitize_error_message(self, msg: str) -> str:
+        """Sanitizes exception messages to guarantee API key is never exposed."""
+        if self.api_key and self.api_key in msg:
+            return msg.replace(self.api_key, "[REDACTED_API_KEY]")
+        return msg
+
     async def _make_api_call(self, system_instruction: str, user_prompt: str) -> Dict[str, Any]:
         if not self.api_key:
             raise ValueError("Gemini API Key (AI_API_KEY) is required to use GeminiProvider.")
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+        # Use header authentication rather than URL query parameters to avoid key exposure
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
         
         request_body = {
             "contents": [
@@ -33,7 +41,10 @@ class GeminiProvider(BaseAIProvider):
             }
         }
 
-        headers = {"Content-Type": "application/json"}
+        headers = {
+            "Content-Type": "application/json",
+            "x-goog-api-key": self.api_key,
+        }
 
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
@@ -49,7 +60,8 @@ class GeminiProvider(BaseAIProvider):
                         err_detail = response.json().get("error", {}).get("message", response.text[:150])
                     except Exception:
                         err_detail = response.text[:150]
-                    raise RuntimeError(f"Gemini API Error ({response.status_code}): {err_detail}")
+                    clean_err = self._sanitize_error_message(err_detail)
+                    raise RuntimeError(f"Gemini API Error ({response.status_code}): {clean_err}")
 
                 data = response.json()
                 
@@ -68,11 +80,13 @@ class GeminiProvider(BaseAIProvider):
         except httpx.TimeoutException:
             raise RuntimeError("Gemini API Request Timed Out (30s limit exceeded).")
         except httpx.RequestError as e:
-            raise RuntimeError(f"Gemini Network Communication Failure: {str(e)}")
+            clean_err = self._sanitize_error_message(str(e))
+            raise RuntimeError(f"Gemini Network Communication Failure: {clean_err}")
         except RuntimeError:
             raise
         except Exception as e:
-            raise RuntimeError(f"Gemini API processing error: {str(e)}")
+            clean_err = self._sanitize_error_message(str(e))
+            raise RuntimeError(f"Gemini API processing error: {clean_err}")
 
     async def generate_api_design(self, prompt: str) -> Dict[str, Any]:
         system_instruction = (

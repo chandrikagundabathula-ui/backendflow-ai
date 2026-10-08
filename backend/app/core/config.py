@@ -13,9 +13,13 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
 
-    AI_PROVIDER: str = "mock"  # mock, gemini, openai
+    AI_PROVIDER: str = "mock"  # mock, nvidia, gemini, openai
     AI_API_KEY: str = ""
     AI_MODEL: str = "gemini-2.5-flash"
+
+    NVIDIA_API_KEY: str = ""
+    NVIDIA_BASE_URL: str = "https://integrate.api.nvidia.com/v1"
+    NVIDIA_MODEL: str = "openai/gpt-oss-20b"
 
     DATABASE_URL: str = "sqlite:///./backendflow.db"
 
